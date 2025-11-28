@@ -9,7 +9,7 @@ from aiogram.utils.chat_action import ChatActionSender
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import CONTACTS
-from src.database.dao import UserDao
+from src.database.dal import UserDal
 from src.handlers.user_application_handler import application_start
 from src.keyboards.keyboard import main_menu_kb, contacts_kb
 from src.states.state import Register, Application
@@ -21,7 +21,7 @@ user_router = Router()
 async def main_menu(message: Message, state: FSMContext, session: AsyncSession):
     await state.clear()
 
-    user = await UserDao.get_user(
+    user = await UserDal.get_user(
         session=session,
         tg_id=message.from_user.id
     )

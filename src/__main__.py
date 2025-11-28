@@ -7,7 +7,7 @@ from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 
 from config import config
 from handlers.user_handler import user_router
-from src.database.dao import UserDao
+from src.database.dal import UserDal
 from src.database.database import session_factory, create_db
 from src.filters.filter import AdminFilter
 from src.handlers.admin_handler import admin_router
@@ -29,7 +29,7 @@ async def setup_bot(bot: Bot):
     )
     admins_ids = []
 
-    for admin_id in config.ADMIN_IDS.get_secret_value().strip().split(';'):
+    for admin_id in config.ADMIN_IDS.strip().split(';'):
         if admin_id == "":
             continue
         try:
@@ -39,10 +39,10 @@ async def setup_bot(bot: Bot):
 
     async with session_factory() as session:
 
-        await UserDao.set_all_user_non_admin(session)
+        await UserDal.set_all_user_non_admin(session)
 
         for admin_id in admins_ids:
-            user = await UserDao.get_user(
+            user = await UserDal.get_user(
                 session=session,
                 tg_id=admin_id)
             if user:

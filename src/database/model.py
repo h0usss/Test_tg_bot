@@ -7,8 +7,6 @@ from src.database.database import Base
 from src.database.enums import Gender
 
 
-now_time = text("TIMEZONE('utc', now())")
-
 class User(Base):
     __tablename__ = 'users'
 
@@ -19,7 +17,7 @@ class User(Base):
     is_admin: Mapped[bool]
     phone_number: Mapped[str]
     birthday: Mapped[datetime]
-    created_at: Mapped[datetime] = mapped_column(server_default=now_time)
+    created_at: Mapped[datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
     def __repr__(self):
         return f"User( id = {self.id}, " \

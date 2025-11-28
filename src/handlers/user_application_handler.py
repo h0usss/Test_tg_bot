@@ -1,14 +1,15 @@
-from aiogram import Router, F
+import logging
+
+from aiogram import Router, F, Bot
 from aiogram.enums import ContentType
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
+from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import APPLICATION_START
-from src.database.dao import ApplicationDao
+from src.database.dal import ApplicationDal, UserDal
 from src.database.dto import ApplicationDto
 from src.database.enums import Gender, Cars
-from src.handlers.admin_handler import send_application_all_admins
 from src.keyboards.keyboard import application_gender_reply_kb, application_love_inline_kb, application_car_kb, \
     main_menu_kb, application_cancel_kb
 from src.states.state import Application
@@ -21,6 +22,7 @@ async def application_cancel_message(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(text="Выбирай что делать дальше🥰",
                                   reply_markup=main_menu_kb)
+
 
 @application_router.callback_query(F.data == "cancel")
 async def application_cancel_callback(callback: CallbackQuery, state: FSMContext):
@@ -87,22 +89,6 @@ async def application_save_love(callback: CallbackQuery, state: FSMContext):
     )
 
 
-async def application_car_message(callback: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    bullying = ""
-    current_choice = data["car_choice"]
-
-    if data["gender"] == Gender.male.name and data["love"] == Gender.male.name:
-        bullying = ", геюга👀"
-    if data["gender"] == Gender.female.name and data["love"] == Gender.female.name:
-        bullying = ", лезбушка👀"
-
-    await callback.message.edit_text(
-        text=f"Отлично{bullying}\nТеперь выбери машины, которые тебе нравятся🚗",
-        reply_markup=await application_car_kb(current_choice)
-    )
-
-
 @application_router.callback_query(
     Application.car,
     F.data.startswith("car_") | F.data.startswith("check_car_")
@@ -145,7 +131,7 @@ async def application_save_car(callback: CallbackQuery, state: FSMContext, sessi
         love=data["love"],
         car=cars
     )
-    application_id = await ApplicationDao.insert(session=session, dto=new_application)
+    application_id = await ApplicationDal.insert(session=session, dto=new_application)
 
     await state.clear()
     await callback.message.edit_text(
@@ -159,3 +145,45 @@ async def application_save_car(callback: CallbackQuery, state: FSMContext, sessi
         bot=callback.bot,
         application_id=application_id
     )
+
+
+async def application_car_message(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    bullying = ""
+    current_choice = data["car_choice"]
+
+    if data["gender"] == Gender.male.name and data["love"] == Gender.male.name:
+        bullying = ", геюга👀"
+    if data["gender"] == Gender.female.name and data["love"] == Gender.female.name:
+        bullying = ", лезбушка👀"
+
+    await callback.message.edit_text(
+        text=f"Отлично{bullying}\nТеперь выбери машины, которые тебе нравятся🚗",
+        reply_markup=await application_car_kb(current_choice)
+    )
+
+
+async def send_application_all_admins(session: AsyncSession, bot: Bot, application_id: int):
+    admin_ids = await UserDal.get_all_admins(session)
+    application = await ApplicationDal.get_application(session, application_id)
+    user = await UserDal.get_user(
+        session=session,
+        user_id=application.user_id
+    )
+
+    text = (f"Заявка №{application.id}\n"
+            f" - Фио: {user.fio}\n"
+            f" - Телефон: {user.phone_number}\n"
+            f" - Пол: {application.gender.name}\n"
+            f" - Любовный интерес: {application.love.name}\n"
+            f" - Машинки: {application.car}\n")
+
+    for admin_id in admin_ids:
+        try:
+            await bot.send_photo(
+                chat_id=admin_id,
+                photo=application.cat_photo_id,
+                caption=text
+            )
+        except Exception as e:
+            logging.error(f"Error send message for user {admin_id}: {e}")

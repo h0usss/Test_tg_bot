@@ -7,6 +7,7 @@ from src.config import config
 engine = create_async_engine(url=config.DB_URL)
 session_factory = async_sessionmaker(engine)
 
+
 class Base(DeclarativeBase):
     pass
 

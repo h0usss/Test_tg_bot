@@ -1,8 +1,6 @@
 from datetime import datetime
 
-from annotated_types import MaxLen
-from pydantic import BaseModel
-from pydantic import PositiveInt
+from pydantic import BaseModel, Field, PositiveInt
 
 from src.database.enums import Gender
 
@@ -15,7 +13,7 @@ class UserDto(BaseModel):
     phone_number: str
     birthday: datetime
     created_at: datetime
-    fio: str = MaxLen(255)
+    fio: str = Field(max_length=255)
 
     model_config = {
         "from_attributes": True
@@ -28,7 +26,7 @@ class UserRegisterDto(BaseModel):
     phone_number: str
     is_admin: bool
     birthday: datetime
-    fio: str = MaxLen(255)
+    fio: str = Field(max_length=255)
 
 
 class ApplicationDto(BaseModel):

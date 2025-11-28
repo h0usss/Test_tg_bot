@@ -3,8 +3,6 @@ services:
     image: postgres:15
     container_name: test_db
     restart: always
-    env_file:
-      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

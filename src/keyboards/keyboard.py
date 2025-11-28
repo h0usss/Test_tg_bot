@@ -32,81 +32,17 @@ contacts_kb = InlineKeyboardMarkup(
     ]
 )
 
-
-async def application_gender_reply_kb() -> ReplyKeyboardMarkup:
-    kb_builder = ReplyKeyboardBuilder()
-
-    (kb_builder
-     .add(*[KeyboardButton(text=gender.capitalize()) for gender in Gender.get_list_names()])
-     .adjust(2)
-     )
-    kb_builder.row(KeyboardButton(text = "Отмена"))
-
-    return kb_builder.as_markup(
-        resize_keyboard=True,
-        input_field_placeholder="Выбирай, Нео.."
-    )
-
-
-async def application_love_inline_kb() -> InlineKeyboardMarkup:
-    kb_builder = InlineKeyboardBuilder()
-
-    (kb_builder
-     .add(*[InlineKeyboardButton(
-        callback_data=f"love_{gender}",
-        text=gender.capitalize()) for gender in Gender.get_list_names()]
-          )
-     .adjust(2)
-     )
-    kb_builder.row(InlineKeyboardButton(text = "Отмена", callback_data="cancel"))
-
-    return kb_builder.as_markup(
-        resize_keyboard=True,
-        input_field_placeholder="Выбирай, Нео.."
-    )
-
 application_cancel_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text = "Отмена",
+                text="Отмена",
                 callback_data="cancel"
             )
         ]
     ],
     input_field_placeholder="Выбирай, Нео.."
 )
-
-
-async def application_car_kb(check: list[bool] = None) -> InlineKeyboardMarkup:
-    kb_builder = InlineKeyboardBuilder()
-    cars = Cars.get_list_names()
-
-    check = check if check else [False] * len(cars)
-
-    for i in range(len(cars)):
-        check_text = ""
-        if check[i]:
-            check_text = "✅"
-
-        kb_builder.add(
-            InlineKeyboardButton(
-                callback_data=f"{check_text}car_{cars[i]}",
-                text=f"{check_text}{cars[i]}"
-            )
-        )
-
-    (kb_builder
-     .add(InlineKeyboardButton(
-        callback_data="done_car",
-        text="Подтвердить"))
-     .adjust(2)
-     )
-
-    kb_builder.row(InlineKeyboardButton(text = "Отмена", callback_data="cancel"))
-
-    return kb_builder.as_markup()
-
 
 admin_command_kb = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -144,6 +80,69 @@ admin_command_back_to_main_kb = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+async def application_gender_reply_kb() -> ReplyKeyboardMarkup:
+    kb_builder = ReplyKeyboardBuilder()
+
+    (kb_builder
+     .add(*[KeyboardButton(text=gender.capitalize()) for gender in Gender.get_list_names()])
+     .adjust(2)
+     )
+    kb_builder.row(KeyboardButton(text="Отмена"))
+
+    return kb_builder.as_markup(
+        resize_keyboard=True,
+        input_field_placeholder="Выбирай, Нео.."
+    )
+
+
+async def application_love_inline_kb() -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+
+    (kb_builder
+     .add(*[InlineKeyboardButton(
+        callback_data=f"love_{gender}",
+        text=gender.capitalize()) for gender in Gender.get_list_names()]
+          )
+     .adjust(2)
+     )
+    kb_builder.row(InlineKeyboardButton(text="Отмена", callback_data="cancel"))
+
+    return kb_builder.as_markup(
+        resize_keyboard=True,
+        input_field_placeholder="Выбирай, Нео.."
+    )
+
+
+async def application_car_kb(check: list[bool] = None) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    cars = Cars.get_list_names()
+
+    check = check if check else [False] * len(cars)
+
+    for i in range(len(cars)):
+        check_text = ""
+        if check[i]:
+            check_text = "✅"
+
+        kb_builder.add(
+            InlineKeyboardButton(
+                callback_data=f"{check_text}car_{cars[i]}",
+                text=f"{check_text}{cars[i]}"
+            )
+        )
+
+    (kb_builder
+     .add(InlineKeyboardButton(
+        callback_data="done_car",
+        text="Подтвердить"))
+     .adjust(2)
+     )
+
+    kb_builder.row(InlineKeyboardButton(text="Отмена", callback_data="cancel"))
+
+    return kb_builder.as_markup()
 
 
 async def admin_user_list_main_kb(users: list[UserDto], page: int, count_page: int):

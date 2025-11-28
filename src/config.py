@@ -7,13 +7,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Config(BaseSettings):
     TOKEN: SecretStr
 
-    DB_HOST: SecretStr  # Не уверен что они должны быть секретными
-    DB_PORT: SecretStr
-    DB_USER: SecretStr
+    DB_HOST: str
+    DB_PORT: str
+    DB_USER: str
     DB_PASS: SecretStr
-    DB_NAME: SecretStr
+    DB_NAME: str
 
-    ADMIN_IDS: SecretStr
+    ADMIN_IDS: str
 
 
     model_config = SettingsConfigDict(
@@ -23,9 +23,8 @@ class Config(BaseSettings):
 
     @property
     def DB_URL(self):
-        return (f"postgresql+asyncpg://{self.DB_USER.get_secret_value()}:{self.DB_PASS.get_secret_value()}"
-                f"@{self.DB_HOST.get_secret_value()}:{self.DB_PORT.get_secret_value()}/{self.DB_NAME.get_secret_value()}")
-
+        return (f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS.get_secret_value()}"
+                f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
 
 
 config = Config()

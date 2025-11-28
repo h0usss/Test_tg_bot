@@ -6,7 +6,7 @@ from src.database.dto import UserRegisterDto, ApplicationDto, UserDto
 from src.database.model import User, Application
 
 
-class UserDao:
+class UserDal:
 
     @staticmethod
     async def insert(session: AsyncSession, dto: UserRegisterDto):
@@ -53,17 +53,16 @@ class UserDao:
 
     @staticmethod
     async def set_all_user_non_admin(session: AsyncSession):
-        query = update(User).values( is_admin=False )
+        query = update(User).values(is_admin=False)
         await session.execute(query)
         await session.commit()
 
 
-
-class ApplicationDao:
+class ApplicationDal:
 
     @staticmethod
     async def insert(session: AsyncSession, dto: ApplicationDto) -> int:
-        user = await UserDao.get_user(
+        user = await UserDal.get_user(
             session=session,
             tg_id=dto.tg_id
         )

@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.dao import UserDao
+from src.database.dal import UserDal
 from src.database.dto import UserRegisterDto
 from src.handlers.user_handler import main_menu
 from src.keyboards.keyboard import phone_kb
@@ -76,7 +76,7 @@ async def create_and_save_user(message, session, state):
         birthday=datetime.strptime(data["Birthday"], "%d.%m.%Y"),
         phone_number=data["Phone"],
     )
-    await UserDao.insert(session, new_user)
+    await UserDal.insert(session, new_user)
     await state.clear()
     await message.answer(text="Атлична, твои данные уже улетели к мошенникам💋")
     await main_menu(message, state, session)

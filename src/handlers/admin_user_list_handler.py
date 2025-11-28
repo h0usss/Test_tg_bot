@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import USER_COUNT_IN_ONE_PAGE
-from src.database.dao import UserDao
+from src.database.dal import UserDal
 from src.database.dto import UserDto
 from src.keyboards.keyboard import admin_user_list_main_kb, admin_user_list_user_kb
 
@@ -16,9 +16,9 @@ list_router = Router()
 @list_router.callback_query(F.data.startswith("admin_users_"))
 async def admin_user_list(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     page = int(callback.data.replace("admin_users_", ""))
-    count_page = math.ceil(await UserDao.get_count_user(session=session) / USER_COUNT_IN_ONE_PAGE)
+    count_page = math.ceil(await UserDal.get_count_user(session=session) / USER_COUNT_IN_ONE_PAGE)
 
-    users = await UserDao.get_several_users(
+    users = await UserDal.get_several_users(
         page=page,
         session=session,
         return_count=USER_COUNT_IN_ONE_PAGE,
